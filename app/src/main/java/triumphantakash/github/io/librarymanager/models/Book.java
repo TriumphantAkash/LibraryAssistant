@@ -14,6 +14,10 @@ public class Book implements Serializable{
         this.bookAuthor = author;
     }
 
+    public Book(){
+
+    }
+
     public void setBookTitle(String bookTitle) {
         this.bookTitle = bookTitle;
     }
