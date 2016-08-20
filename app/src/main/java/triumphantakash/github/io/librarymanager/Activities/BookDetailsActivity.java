@@ -1,7 +1,9 @@
-package triumphantakash.github.io.librarymanager;
+package triumphantakash.github.io.librarymanager.Activities;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+
+import triumphantakash.github.io.librarymanager.R;
 
 public class BookDetailsActivity extends AppCompatActivity {
 
