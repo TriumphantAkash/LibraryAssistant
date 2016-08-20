@@ -1,7 +1,10 @@
 package triumphantakash.github.io.librarymanager.Activities;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 import java.util.ArrayList;
@@ -18,6 +21,16 @@ public class BooksActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_books);
         bookList = (ListView)findViewById(R.id.bookList);
+
+
+        bookList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Book temp = (Book) parent.getAdapter().getItem(position);
+                toBookDetailsActivity(temp);
+            }
+        });
     }
 
     @Override
@@ -33,5 +46,11 @@ public class BooksActivity extends AppCompatActivity {
 
         BookListAdapter bookListAdapter = new BookListAdapter(getApplicationContext(), bookListFromServer);
         bookList.setAdapter(bookListAdapter);
+    }
+
+    public void toBookDetailsActivity(Book book){
+        Intent intent = new Intent(this, BookDetailsActivity.class);
+        intent.putExtra("bookObject", book);
+        startActivity(intent);
     }
 }
