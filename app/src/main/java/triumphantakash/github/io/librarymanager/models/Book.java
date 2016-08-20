@@ -7,6 +7,11 @@ public class Book {
     String bookTitle;
     String bookAuthor;
 
+    public Book(String title, String author){
+        this.bookTitle = title;
+        this.bookAuthor = author;
+    }
+
     public void setBookTitle(String bookTitle) {
         this.bookTitle = bookTitle;
     }
