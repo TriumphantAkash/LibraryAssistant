@@ -30,12 +30,20 @@ public class BooksActivity extends AppCompatActivity {
     String endPoint = "https://interview-api-staging.bytemark.co";
     RestAdapter restAdapter;
     ArrayList<Book> bookListFromServer;
+    LibraryService libraryService;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_books);
         bookList = (ListView)findViewById(R.id.bookList);
 
+        bookListFromServer = new ArrayList<>();
+
+        bookListAdapter = new BookListAdapter(getApplicationContext(), bookListFromServer);
+        bookList.setAdapter(bookListAdapter);
+
+        restAdapter = new RestAdapter.Builder().setEndpoint(endPoint).build();
+        libraryService = restAdapter.create(LibraryService.class);
 
         bookList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
@@ -46,25 +54,13 @@ public class BooksActivity extends AppCompatActivity {
             }
         });
 
-        restAdapter = new RestAdapter.Builder()
-                .setEndpoint(endPoint).build();
     }
 
     @Override
     protected void onResume(){
         super.onResume();
+        bookListFromServer.clear();
 
-        bookListFromServer = new ArrayList<>();
-       // Book book1 = new Book("Ramayana", "Tulsidas");
-       // Book book2 = new Book("Ramcharitmanas", "Kaalidas");
-
-        //bookListFromServer.add(book1);
-        //bookListFromServer.add(book2);
-
-        bookListAdapter = new BookListAdapter(getApplicationContext(), bookListFromServer);
-        bookList.setAdapter(bookListAdapter);
-
-        LibraryService libraryService = restAdapter.create(LibraryService.class);
         libraryService.getBooks(new Callback<Book[]>() {
             @Override
             public void success(Book[] books, Response response) {
@@ -72,7 +68,14 @@ public class BooksActivity extends AppCompatActivity {
                     bookListFromServer.add(books[i]);
 
                 }
-                bookListAdapter.notifyDataSetChanged();
+                runOnUiThread(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        bookListAdapter.notifyDataSetChanged();
+                    }
+                });
+
             }
 
             @Override

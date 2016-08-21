@@ -59,6 +59,7 @@ public class AddBookActivity extends AppCompatActivity {
                         @Override
                         public void success(Object o, Response response) {
                             Log.i("HAHA", response.toString());
+                            finish();
                         }
 
                         @Override
@@ -68,7 +69,6 @@ public class AddBookActivity extends AppCompatActivity {
                     });
 
                     //go back to the previous Activity
-                    finish();
                 }else{
                     AlertDialog.Builder alert = new AlertDialog.Builder(AddBookActivity.this);
                     alert.setTitle("Incomplete Data");
