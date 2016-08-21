@@ -5,13 +5,38 @@ import java.io.Serializable;
 /**
  * Created by Akash on 8/20/2016.
  */
+
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
 public class Book implements Serializable{
+
+    @SerializedName("title")
+    @Expose
     String bookTitle;
+
+    @SerializedName("author")
+    @Expose
     String bookAuthor;
+
+    @SerializedName("publisher")
+    @Expose
     String bookPublisher;
+
+    @SerializedName("categories")
+    @Expose
     String bookCatagories;
+
+    @SerializedName("url")
+    @Expose
     String bookURL;
+
+    @SerializedName("lastCheckedOut")
+    @Expose
     String lastCheckedOut;
+
+    @SerializedName("lastCheckedOutBy")
+    @Expose
     String lastCheckedOutBy;
 
     public void setBookPublisher(String bookPublisher) {
