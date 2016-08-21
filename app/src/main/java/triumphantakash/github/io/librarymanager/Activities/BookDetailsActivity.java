@@ -2,10 +2,14 @@ package triumphantakash.github.io.librarymanager.Activities;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Color;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.ShareActionProvider;
 import android.os.Bundle;
-import android.text.Editable;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -17,13 +21,15 @@ import triumphantakash.github.io.librarymanager.models.Book;
 
 public class BookDetailsActivity extends AppCompatActivity {
 
+    private ShareActionProvider mShareActionProvider;
     TextView authorName, publisher, title, tags, checkoutDetails;
     Button checkoutButton;
+    Book receivedBook;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_book_details);
-        Book book = (Book)getIntent().getSerializableExtra("bookObject");
+        receivedBook = (Book)getIntent().getSerializableExtra("bookObject");
 
         authorName = (TextView)findViewById(R.id.authorName);
         publisher = (TextView)findViewById(R.id.publisher);
@@ -63,9 +69,40 @@ public class BookDetailsActivity extends AppCompatActivity {
                 alert.show();
             }
         });
-        //feed data to text fields
-        authorName.setText(book.getBookAuthor());
-        title.setText(book.getBookTitle());
 
+        //feed data to text fields
+        authorName.setText(receivedBook.getBookAuthor());
+        title.setText(receivedBook.getBookTitle());
+
+        getSupportActionBar().setHomeButtonEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+    }
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+
+        /** Inflating the current activity's menu with res/menu/items.xml */
+        getMenuInflater().inflate(R.menu.menu_book_details_activity, menu);
+
+        /** Getting the actionprovider associated with the menu item whose id is share */
+        MenuItem item = menu.findItem(R.id.menu_item_share);
+        mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(item);
+
+        /** Setting a share intent */
+        mShareActionProvider.setShareIntent(getDefaultShareIntent());
+
+        return super.onCreateOptionsMenu(menu);
+
+    }
+
+    /** Returns a share intent */
+    private Intent getDefaultShareIntent(){
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.setType("text/plain");
+        intent.putExtra(Intent.EXTRA_SUBJECT, "BOOK");
+        intent.putExtra(Intent.EXTRA_TEXT, receivedBook.getBookTitle()+" by "+receivedBook.getBookAuthor());
+        return intent;
     }
 }

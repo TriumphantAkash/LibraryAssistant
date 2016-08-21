@@ -1,0 +1,12 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:bwq="http://schemas.android.com/apk/res-auto"
+xmlns:app="http://schemas.android.com/apk/res-auto"
+xmlns:tools="http://schemas.android.com/tools" tools:context=".BookDetailsActivity">
+
+<item
+    android:id="@+id/menu_item_share"
+    app:showAsAction="ifRoom"
+    android:title="Share"
+    bwq:actionProviderClass="android.support.v7.widget.ShareActionProvider"
+    />
+</menu>

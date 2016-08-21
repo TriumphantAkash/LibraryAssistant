@@ -42,5 +42,8 @@ public class AddBookActivity extends AppCompatActivity {
             }
         });
 
+        getSupportActionBar().setHomeButtonEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
     }
 }
