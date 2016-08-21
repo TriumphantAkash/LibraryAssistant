@@ -77,7 +77,6 @@ public class BooksActivity extends AppCompatActivity {
 
             @Override
             public void failure(RetrofitError error) {
-                Log.i("HAHA", "failure");
                 Log.i("HAHA", error.toString());
             }
         });
