@@ -7,7 +7,7 @@
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="88"
+        android:layout_weight="76"
         android:orientation="vertical"
         android:paddingLeft="10dp">
         <TextView
@@ -90,15 +90,23 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="50"
-            android:text="Delete from Library"
+            android:text="Delete"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:id="@+id/deleteButton" />
         <Button
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="50"
-            android:text="Checkout"
+            android:text="Modify"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:id="@+id/checkoutButton" />
+            android:id="@+id/modifyButton" />
         </LinearLayout>
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="12"
+        android:text="Checkout"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:id="@+id/checkoutButton"
+        android:layout_marginBottom="2dp"/>
 </LinearLayout>

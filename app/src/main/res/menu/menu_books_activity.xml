@@ -1,6 +1,6 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
 xmlns:tools="http://schemas.android.com/tools" tools:context=".BooksActivity">
-<item android:id="@+id/action_addBook" android:icon="@drawable/ic_action_add_book"
+<item android:id="@+id/action_delete" android:icon="@drawable/warning1_icon"
     android:orderInCategory="100" app:showAsAction="always"/>
 </menu>

@@ -18,7 +18,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 
 import retrofit.Callback;
 import retrofit.RestAdapter;
@@ -32,7 +34,7 @@ public class BookDetailsActivity extends AppCompatActivity {
 
     private ShareActionProvider mShareActionProvider;
     TextView authorName, publisher, title, tags, checkoutDetails;
-    Button checkoutButton, deleteBookButton;
+    Button checkoutButton, deleteBookButton, modifyButton;
     Book receivedBook;
     RestAdapter restAdapter;
     LibraryService libraryService;
@@ -44,6 +46,7 @@ public class BookDetailsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_book_details);
         receivedBook = (Book)getIntent().getSerializableExtra("bookObject");
 
+        Log.i("HAHA", Calendar.getInstance().getTimeZone().getDisplayName(false, TimeZone.SHORT));
         authorName = (TextView)findViewById(R.id.authorName);
         publisher = (TextView)findViewById(R.id.publisher);
         title = (TextView)findViewById(R.id.bookName);
@@ -52,6 +55,7 @@ public class BookDetailsActivity extends AppCompatActivity {
 
         checkoutButton = (Button)findViewById(R.id.checkoutButton);
         deleteBookButton = (Button)findViewById(R.id.deleteButton);
+        modifyButton = (Button)findViewById(R.id.modifyButton);
 
         //feed data to text fields
         feedData();
@@ -82,7 +86,8 @@ public class BookDetailsActivity extends AppCompatActivity {
                         }else{
                             //call correesponding web service for checkout
                             String currentDateandTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
-                            receivedBook.setLastCheckedOut(currentDateandTime);
+                            String timeZone = Calendar.getInstance().getTimeZone().getDisplayName(false, TimeZone.SHORT);
+                            receivedBook.setLastCheckedOut(currentDateandTime+" "+timeZone);
                             receivedBook.setLastCheckedOutBy(enteredName);
                             String[] urlsParts = receivedBook.getBookURL().split("/");
                             libraryService.updateBook(urlsParts[2], receivedBook, new Callback<Object>() {
@@ -154,6 +159,8 @@ public class BookDetailsActivity extends AppCompatActivity {
 
             }
         });
+
+
     }
 
 
@@ -210,11 +217,11 @@ public class BookDetailsActivity extends AppCompatActivity {
             tags.setText(str);
         }
 
-        str = receivedBook.getLastCheckedOut();
+        str = receivedBook.getLastCheckedOutBy();
         if(str == null) {
             checkoutDetails.setText("Not yet checked out");
-        }else{
-            checkoutDetails.setText(str);
+        }else {
+            checkoutDetails.setText(str + " @ "+receivedBook.getLastCheckedOut());
         }
     }
 }

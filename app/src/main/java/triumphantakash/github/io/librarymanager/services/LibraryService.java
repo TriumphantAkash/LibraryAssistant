@@ -23,6 +23,9 @@ public interface LibraryService {
     @DELETE("/books/{book_no}")
     public void deleteBook(@Path("book_no") String book_no, Callback<?>callback);
 
+    @DELETE("/clean")
+    public void deleteAllBooks(Callback<?>callback);
+
     @PUT("/books/{book_no}")
     public void updateBook(@Path("book_no") String book_no, @Body Object object, Callback<?>callback);
 }

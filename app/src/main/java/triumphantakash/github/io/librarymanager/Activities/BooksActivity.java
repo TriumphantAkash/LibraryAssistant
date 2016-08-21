@@ -1,6 +1,9 @@
 package triumphantakash.github.io.librarymanager.Activities;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -9,10 +12,14 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 import retrofit.Callback;
 import retrofit.RestAdapter;
@@ -31,32 +38,45 @@ public class BooksActivity extends AppCompatActivity {
     RestAdapter restAdapter;
     ArrayList<Book> bookListFromServer;
     LibraryService libraryService;
+    Button addBookButton;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_books);
         bookList = (ListView)findViewById(R.id.bookList);
 
-        bookListFromServer = new ArrayList<>();
-
-        bookListAdapter = new BookListAdapter(getApplicationContext(), bookListFromServer);
-        bookList.setAdapter(bookListAdapter);
-
-        restAdapter = new RestAdapter.Builder().setEndpoint(endPoint).build();
-        libraryService = restAdapter.create(LibraryService.class);
-
-        bookList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-
+        addBookButton = (Button)findViewById(R.id.buttonAddBook);
+        addBookButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            public void onClick(View v) {
+                toAddBookActivity();
+            }
+        });
+            bookListFromServer=new ArrayList<>();
+
+            bookListAdapter=new BookListAdapter(getApplicationContext(),bookListFromServer);
+            bookList.setAdapter(bookListAdapter);
+
+            restAdapter=new RestAdapter.Builder().setEndpoint(endPoint).build();
+
+            libraryService=restAdapter.create(LibraryService.class);
+
+            bookList.setOnItemClickListener(new AdapterView.OnItemClickListener()
+
+            {
+
+                @Override
+                public void onItemClick (AdapterView < ? > parent, View view,int position, long id){
                 Book temp = (Book) parent.getAdapter().getItem(position);
                 toBookDetailsActivity(temp);
             }
-        });
+            }
 
-    }
+            );
 
-    @Override
+        }
+
+        @Override
     protected void onResume(){
         super.onResume();
         bookListFromServer.clear();
@@ -111,13 +131,52 @@ public class BooksActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_addBook) {
-            toAddBookActivity();
+        if (id == R.id.action_delete) {
+            deleteAllBooks();
             return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
 
+    public void deleteAllBooks(){
+        AlertDialog.Builder alert = new AlertDialog.Builder(BooksActivity.this);
+        alert.setIcon(R.drawable.warning2_icon);
+        alert.setTitle("Deleting All Books");
+        alert.setMessage("Are you sure you want to delete all books!?");
 
+        alert.setPositiveButton("DELETE ANYWAY", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                libraryService.deleteAllBooks(new Callback<Object>() {
+                    @Override
+                    public void success(Object o, Response response) {
+                        Log.i("HAHA", response.toString());
+                        bookListFromServer.clear();
+                        runOnUiThread(new Runnable() {
+
+                            @Override
+                            public void run() {
+                                bookListAdapter.notifyDataSetChanged();
+                            }
+                        });
+                        Toast.makeText(BooksActivity.this, "All books deleted", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void failure(RetrofitError error) {
+                        Log.i("HAHA", "error in deleting all books" + error);
+                    }
+                });
+            }
+        });
+
+        alert.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                // what ever you want to do with No option.
+                //Toast.makeText(BookDetailsActivity.this, "Checkout operation cancelled", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        alert.show();
+    }
 }
