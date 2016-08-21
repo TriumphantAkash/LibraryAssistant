@@ -17,6 +17,9 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import retrofit.Callback;
 import retrofit.RestAdapter;
 import retrofit.RetrofitError;
@@ -51,8 +54,7 @@ public class BookDetailsActivity extends AppCompatActivity {
         deleteBookButton = (Button)findViewById(R.id.deleteButton);
 
         //feed data to text fields
-        authorName.setText(receivedBook.getBookAuthor());
-        title.setText(receivedBook.getBookTitle());
+        feedData();
 
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -79,7 +81,23 @@ public class BookDetailsActivity extends AppCompatActivity {
                             Toast.makeText(BookDetailsActivity.this, "Invalid name input\nCould not checkout", Toast.LENGTH_SHORT).show();
                         }else{
                             //call correesponding web service for checkout
-                            Toast.makeText(BookDetailsActivity.this, "Book checked out by: "+enteredName+" at @", Toast.LENGTH_SHORT).show();
+                            String currentDateandTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+                            receivedBook.setLastCheckedOut(currentDateandTime);
+                            receivedBook.setLastCheckedOutBy(enteredName);
+                            String[] urlsParts = receivedBook.getBookURL().split("/");
+                            libraryService.updateBook(urlsParts[2], receivedBook, new Callback<Object>() {
+                                @Override
+                                public void success(Object o, Response response) {
+                                    Log.i("HAHA", "success"+response.toString());
+                                    feedData();
+                                }
+
+                                @Override
+                                public void failure(RetrofitError error) {
+                                    Log.i("HAHA", "error in checkout book" + error);
+                                }
+                            });
+                            Toast.makeText(BookDetailsActivity.this, "Book checked out by: "+enteredName+" @ "+currentDateandTime, Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
@@ -163,5 +181,40 @@ public class BookDetailsActivity extends AppCompatActivity {
         intent.putExtra(Intent.EXTRA_SUBJECT, "BOOK");
         intent.putExtra(Intent.EXTRA_TEXT, receivedBook.getBookTitle()+" by "+receivedBook.getBookAuthor());
         return intent;
+    }
+
+    public void feedData(){
+        String str = receivedBook.getBookAuthor();
+        if(str == null) {
+            authorName.setText("info not available");
+        }else{
+            authorName.setText(str);
+        }
+        str = receivedBook.getBookTitle();
+        if(str == null) {
+            title.setText("info not available");
+        }else{
+            title.setText(str);
+        }
+        str = receivedBook.getBookPublisher();
+        if(str == null) {
+            publisher.setText("info not available");
+        }else{
+            publisher.setText(str);
+        }
+
+        str = receivedBook.getBookCatagories();
+        if(str == null) {
+            tags.setText("info not available");
+        }else{
+            tags.setText(str);
+        }
+
+        str = receivedBook.getLastCheckedOut();
+        if(str == null) {
+            checkoutDetails.setText("Not yet checked out");
+        }else{
+            checkoutDetails.setText(str);
+        }
     }
 }

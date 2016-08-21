@@ -14,7 +14,7 @@
             android:layout_height="0dp"
             android:ems="10"
             android:id="@+id/bookTitle"
-            android:hint="book title.."/>
+            android:hint="Book Title.."/>
 
         <EditText
             android:layout_width="match_parent"
@@ -24,7 +24,7 @@
             android:layout_marginRight="10dp"
             android:ems="10"
             android:id="@+id/bookAuthor"
-            android:hint="book author.."/>
+            android:hint="Author.."/>
 
         <EditText
         android:layout_width="match_parent"
@@ -34,7 +34,7 @@
         android:layout_marginRight="10dp"
         android:ems="10"
         android:id="@+id/bookPublisher"
-        android:hint="book publisher.."/>
+        android:hint="Publisher.."/>
 
         <EditText
         android:layout_width="match_parent"
@@ -44,13 +44,13 @@
         android:layout_marginRight="10dp"
         android:ems="10"
         android:id="@+id/bookCatagories"
-        android:hint="book catagories.." />
+        android:hint="Catagories.." />
 
     <Button
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="12"
-        android:text="Submit"
+        android:text="SUBMIT"
         android:id="@+id/addBookButton" />
 
 
