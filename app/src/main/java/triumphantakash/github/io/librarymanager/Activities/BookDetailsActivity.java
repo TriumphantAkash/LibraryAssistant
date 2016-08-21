@@ -8,6 +8,7 @@ import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.ShareActionProvider;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -16,15 +17,24 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import retrofit.Callback;
+import retrofit.RestAdapter;
+import retrofit.RetrofitError;
+import retrofit.client.Response;
 import triumphantakash.github.io.librarymanager.R;
 import triumphantakash.github.io.librarymanager.models.Book;
+import triumphantakash.github.io.librarymanager.services.LibraryService;
 
 public class BookDetailsActivity extends AppCompatActivity {
 
     private ShareActionProvider mShareActionProvider;
     TextView authorName, publisher, title, tags, checkoutDetails;
-    Button checkoutButton;
+    Button checkoutButton, deleteBookButton;
     Book receivedBook;
+    RestAdapter restAdapter;
+    LibraryService libraryService;
+    String endPoint = "https://interview-api-staging.bytemark.co";
+    String enteredName;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,39 +46,9 @@ public class BookDetailsActivity extends AppCompatActivity {
         title = (TextView)findViewById(R.id.bookName);
         tags = (TextView)findViewById(R.id.tags);
         checkoutDetails = (TextView)findViewById(R.id.checkoutDetails);
+
         checkoutButton = (Button)findViewById(R.id.checkoutButton);
-
-
-        checkoutButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                AlertDialog.Builder alert = new AlertDialog.Builder(BookDetailsActivity.this);
-                final EditText edittext = new EditText(getApplicationContext());
-                edittext.setHint("Enter Your name here...");
-                edittext.setHintTextColor(Color.GRAY);
-                //edittext.setPadding(10,0,10,0);
-                alert.setTitle("Book Checkout");
-                edittext.setTextColor(Color.BLACK);
-
-                alert.setView(edittext);
-
-                alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                        String YouEditTextValue = edittext.getText().toString();
-                        Toast.makeText(BookDetailsActivity.this, YouEditTextValue, Toast.LENGTH_SHORT).show();
-                    }
-                });
-
-                alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                        // what ever you want to do with No option.
-                        Toast.makeText(BookDetailsActivity.this, "Book was not checked out", Toast.LENGTH_SHORT).show();
-                    }
-                });
-
-                alert.show();
-            }
-        });
+        deleteBookButton = (Button)findViewById(R.id.deleteButton);
 
         //feed data to text fields
         authorName.setText(receivedBook.getBookAuthor());
@@ -77,6 +57,85 @@ public class BookDetailsActivity extends AppCompatActivity {
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        restAdapter =  new RestAdapter.Builder().setEndpoint(endPoint).build();
+        libraryService = restAdapter.create(LibraryService.class);
+        checkoutButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertDialog.Builder alert = new AlertDialog.Builder(BookDetailsActivity.this);
+                final EditText edittext = new EditText(getApplicationContext());
+                alert.setIcon(R.mipmap.ic_launcher);
+                edittext.setHint("Name..");
+                edittext.setHintTextColor(Color.GRAY);
+                alert.setTitle("Book Checkout");
+                edittext.setTextColor(Color.BLACK);
+
+                alert.setView(edittext);
+
+                alert.setPositiveButton("Checkout", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        enteredName = edittext.getText().toString();
+                        if(enteredName.trim().length() == 0){
+                            Toast.makeText(BookDetailsActivity.this, "Invalid name input\nCould not checkout", Toast.LENGTH_SHORT).show();
+                        }else{
+                            //call correesponding web service for checkout
+                            Toast.makeText(BookDetailsActivity.this, "Book checked out by: "+enteredName+" at @", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+
+                alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        // what ever you want to do with No option.
+                        Toast.makeText(BookDetailsActivity.this, "Checkout operation cancelled", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+                alert.show();
+            }
+        });
+
+        deleteBookButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                AlertDialog.Builder alert = new AlertDialog.Builder(BookDetailsActivity.this);
+                alert.setTitle("Book Delete Confirmation");
+                alert.setIcon(R.drawable.warning1_icon);
+                alert.setMessage("Are you sure want to delete book '" + receivedBook.getBookTitle() + "'?");
+                alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        String[] urlsParts = receivedBook.getBookURL().split("/");
+                        libraryService.deleteBook(urlsParts[2], new Callback<Object>() {
+                            @Override
+                            public void success(Object o, Response response) {
+                                Log.i("HAHA", response.toString());
+                            }
+
+                            @Override
+                            public void failure(RetrofitError error) {
+                                Log.i("HAHA", "error in deleting book" + error);
+                            }
+                        });
+                        finish();   //back to home Activity
+                        Toast.makeText(BookDetailsActivity.this, "Book Deleted", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+                alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        // what ever you want to do with No option.
+                        Toast.makeText(BookDetailsActivity.this, "Delete Operation Cancelled", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+                alert.show();
+
+
+
+
+            }
+        });
     }
 
 

@@ -2,6 +2,7 @@ package triumphantakash.github.io.librarymanager.services;
 
 import retrofit.Callback;
 import retrofit.http.Body;
+import retrofit.http.DELETE;
 import retrofit.http.GET;
 import retrofit.http.POST;
 import retrofit.http.Path;
@@ -17,4 +18,7 @@ public interface LibraryService {
 
     @POST("/books")
     public void addBook(@Body Object object , Callback<?> callback);
+
+    @DELETE("/books/{book_no}")
+    public void deleteBook(@Path("book_no") String book_no, Callback<?>callback);
 }
