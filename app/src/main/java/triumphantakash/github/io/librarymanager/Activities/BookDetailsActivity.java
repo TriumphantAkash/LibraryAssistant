@@ -58,7 +58,7 @@ public class BookDetailsActivity extends AppCompatActivity {
         modifyButton = (Button)findViewById(R.id.modifyButton);
 
         //feed data to text fields
-        feedData();
+        feedData(receivedBook);
 
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -94,7 +94,7 @@ public class BookDetailsActivity extends AppCompatActivity {
                                 @Override
                                 public void success(Object o, Response response) {
                                     Log.i("HAHA", "success"+response.toString());
-                                    feedData();
+                                    feedData(receivedBook);
                                 }
 
                                 @Override
@@ -173,7 +173,7 @@ public class BookDetailsActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        feedData();
+        refetchData();
     }
 
     @Override
@@ -202,34 +202,34 @@ public class BookDetailsActivity extends AppCompatActivity {
         return intent;
     }
 
-    public void feedData(){
-        String str = receivedBook.getBookAuthor();
+    public void feedData(Book book){
+        String str = book.getBookAuthor();
         if(str == null) {
             authorName.setText("info not available");
         }else{
             authorName.setText(str);
         }
-        str = receivedBook.getBookTitle();
+        str = book.getBookTitle();
         if(str == null) {
             title.setText("info not available");
         }else{
             title.setText(str);
         }
-        str = receivedBook.getBookPublisher();
+        str = book.getBookPublisher();
         if(str == null) {
             publisher.setText("info not available");
         }else{
             publisher.setText(str);
         }
 
-        str = receivedBook.getBookCatagories();
+        str = book.getBookCatagories();
         if(str == null) {
             tags.setText("info not available");
         }else{
             tags.setText(str);
         }
 
-        str = receivedBook.getLastCheckedOutBy();
+        str = book.getLastCheckedOutBy();
         if(str == null) {
             checkoutDetails.setText("Not yet checked out");
         }else {
@@ -241,5 +241,21 @@ public class BookDetailsActivity extends AppCompatActivity {
         Intent intent = new Intent(this, AddBookActivity.class).putExtra("operation", "modify");
         intent.putExtra("bookObject", receivedBook);
         startActivity(intent);
+    }
+
+    public void refetchData(){  //will be called from onResume
+        String[] urlsParts = receivedBook.getBookURL().split("/");
+        libraryService.getBook(urlsParts[2], new Callback<Book>() {
+            @Override
+            public void success(Book book, Response response) {
+                Log.i("HAHA", response.toString());
+                feedData(book);
+            }
+
+            @Override
+            public void failure(RetrofitError error) {
+                Log.i("HAHA", "error in deleting book" + error);
+            }
+        });
     }
 }

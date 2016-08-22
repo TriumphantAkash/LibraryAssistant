@@ -17,6 +17,9 @@ public interface LibraryService {
     public void getBooks(Callback<Book[]> response);     //string user is for passing values from edittext for eg: user=basil2style,google
     //response is the response from the server which is now in the POJO
 
+    @GET("/books/{book_no}")
+    public void getBook(@Path("book_no") String book_no, Callback<Book>callback);
+
     @POST("/books")
     public void addBook(@Body Object object , Callback<?> callback);
 

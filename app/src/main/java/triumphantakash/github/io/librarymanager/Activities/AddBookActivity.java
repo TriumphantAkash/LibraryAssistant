@@ -2,6 +2,7 @@ package triumphantakash.github.io.librarymanager.Activities;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.graphics.Color;
 import android.support.annotation.DrawableRes;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -10,6 +11,11 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
 
 import retrofit.Callback;
 import retrofit.RestAdapter;
@@ -40,11 +46,13 @@ public class AddBookActivity extends AppCompatActivity {
         bookAuthor = (EditText)findViewById(R.id.bookAuthor);
         bookPublisher = (EditText)findViewById(R.id.bookPublisher);
         bookCatagories = (EditText)findViewById(R.id.bookCatagories);
+        submitButton = (Button)findViewById(R.id.addBookButton);
 
         if(passedData.getString("operation").equals("modify")){
             modifyBook();
+        }else{
+            receivedBook = new Book();
         }
-        submitButton = (Button)findViewById(R.id.addBookButton);
 
         submitButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -131,5 +139,40 @@ public class AddBookActivity extends AppCompatActivity {
         bookAuthor.setText(receivedBook.getBookAuthor());
         bookCatagories.setText(receivedBook.getBookCatagories());
         bookPublisher.setText(receivedBook.getBookPublisher());
+    }
+
+    @Override
+    public void onBackPressed() {
+        Book book = new Book();
+        book.setBookTitle(bookTitle.getText().toString());
+        book.setBookAuthor(bookAuthor.getText().toString());
+        book.setBookCatagories(bookCatagories.getText().toString());
+        book.setBookPublisher(bookPublisher.getText().toString());
+
+        if((book.getBookTitle().trim().length()>0) || (book.getBookAuthor().trim().length() > 0) || (book.getBookCatagories().trim().length() > 0) || (book.getBookPublisher().trim().length()>0)){
+            //unsaved data present
+            AlertDialog.Builder alert = new AlertDialog.Builder(AddBookActivity.this);
+            alert.setIcon(R.drawable.warning_icon);
+            alert.setTitle("Unsaved Data");
+            alert.setMessage("Unsaved data present\nStill want to leave the screen?");
+
+            alert.setPositiveButton("YES", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int whichButton) {
+                    finish();
+                }
+            });
+
+            alert.setNegativeButton("NO", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int whichButton) {
+
+                }
+            });
+
+            alert.show();
+        }
+        else{
+            finish();
+        }
+        //super.onBackPressed();
     }
 }
