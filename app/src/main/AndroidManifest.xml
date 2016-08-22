@@ -11,7 +11,7 @@
         android:theme="@style/AppTheme" >
         <activity android:name=".Activities.BooksActivity"
             android:icon="@drawable/ic_launcher"
-            android:label="Books">
+            android:label="ByteMark Library Books">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

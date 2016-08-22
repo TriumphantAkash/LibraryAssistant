@@ -112,7 +112,7 @@ public class BooksActivity extends AppCompatActivity {
     }
 
     public void toAddBookActivity(){
-        Intent intent = new Intent(this, AddBookActivity.class);
+        Intent intent = new Intent(this, AddBookActivity.class).putExtra("operation", "add");
         startActivity(intent);
     }
 

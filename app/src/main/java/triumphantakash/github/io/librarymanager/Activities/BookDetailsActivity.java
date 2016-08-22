@@ -160,9 +160,21 @@ public class BookDetailsActivity extends AppCompatActivity {
             }
         });
 
+        modifyButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                toAddBookActivity();
+            }
+        });
+
 
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        feedData();
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -186,7 +198,7 @@ public class BookDetailsActivity extends AppCompatActivity {
         Intent intent = new Intent(Intent.ACTION_SEND);
         intent.setType("text/plain");
         intent.putExtra(Intent.EXTRA_SUBJECT, "BOOK");
-        intent.putExtra(Intent.EXTRA_TEXT, receivedBook.getBookTitle()+" by "+receivedBook.getBookAuthor());
+        intent.putExtra(Intent.EXTRA_TEXT, receivedBook.getBookTitle() + " by " + receivedBook.getBookAuthor());
         return intent;
     }
 
@@ -223,5 +235,11 @@ public class BookDetailsActivity extends AppCompatActivity {
         }else {
             checkoutDetails.setText(str + " @ "+receivedBook.getLastCheckedOut());
         }
+    }
+
+    public void toAddBookActivity(){
+        Intent intent = new Intent(this, AddBookActivity.class).putExtra("operation", "modify");
+        intent.putExtra("bookObject", receivedBook);
+        startActivity(intent);
     }
 }

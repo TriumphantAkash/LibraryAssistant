@@ -25,10 +25,14 @@ public class AddBookActivity extends AppCompatActivity {
     Button submitButton;
     RestAdapter restAdapter;
     String endPoint = "https://interview-api-staging.bytemark.co";
+    String flag = "add";
+    Book receivedBook;
+    Bundle passedData;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_book);
+        passedData = getIntent().getExtras();
 
 
         restAdapter = new RestAdapter.Builder().setEndpoint(endPoint).build();
@@ -36,18 +40,21 @@ public class AddBookActivity extends AppCompatActivity {
         bookAuthor = (EditText)findViewById(R.id.bookAuthor);
         bookPublisher = (EditText)findViewById(R.id.bookPublisher);
         bookCatagories = (EditText)findViewById(R.id.bookCatagories);
+
+        if(passedData.getString("operation").equals("modify")){
+            modifyBook();
+        }
         submitButton = (Button)findViewById(R.id.addBookButton);
 
         submitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Book book = new Book();
-                book.setBookTitle(bookTitle.getText().toString());
-                book.setBookAuthor(bookAuthor.getText().toString());
-                book.setBookCatagories(bookCatagories.getText().toString());
-                book.setBookPublisher(bookPublisher.getText().toString());
+                receivedBook.setBookTitle(bookTitle.getText().toString());
+                receivedBook.setBookAuthor(bookAuthor.getText().toString());
+                receivedBook.setBookCatagories(bookCatagories.getText().toString());
+                receivedBook.setBookPublisher(bookPublisher.getText().toString());
 
-                if(isInputValid(book)){
+                if(isInputValid(receivedBook)){
                     /*
                     ..
                     ..
@@ -55,18 +62,36 @@ public class AddBookActivity extends AppCompatActivity {
                     */
                     //call web service POST method here and feed this book object to it
                     LibraryService libraryService = restAdapter.create(LibraryService.class);
-                    libraryService.addBook(book, new Callback<Object>() {
-                        @Override
-                        public void success(Object o, Response response) {
-                            Log.i("HAHA", response.toString());
-                            finish();
-                        }
+                    if(flag.equals("add")) {
+                        libraryService.addBook(receivedBook, new Callback<Object>() {
+                            @Override
+                            public void success(Object o, Response response) {
+                                Log.i("HAHA", response.toString());
+                                finish();
+                            }
 
-                        @Override
-                        public void failure(RetrofitError error) {
-                            Log.i("HAHA", "error in adding book" + error);
-                        }
-                    });
+                            @Override
+                            public void failure(RetrofitError error) {
+                                Log.i("HAHA", "error in adding book" + error);
+                            }
+                        });
+                    }else{  //flag == "modify"
+                        String[] urlsParts = receivedBook.getBookURL().split("/");
+                        libraryService.updateBook(urlsParts[2], receivedBook, new Callback<Object>() {
+                            @Override
+                            public void success(Object o, Response response) {
+                                Log.i("HAHA", "success" + response.toString());
+                                Toast.makeText(AddBookActivity.this, "Book modified", Toast.LENGTH_SHORT).show();
+                                finish();
+                            }
+
+                            @Override
+                            public void failure(RetrofitError error) {
+                                Log.i("HAHA", "error in checkout book" + error);
+                            }
+                        });
+
+                    }
 
                     //go back to the previous Activity
                 }else{
@@ -95,5 +120,16 @@ public class AddBookActivity extends AppCompatActivity {
         }else{
             return false;
         }
+    }
+
+    public void modifyBook(){
+        //Modify Operation
+        flag = "modify";
+        getSupportActionBar().setTitle("Modify Book");
+        receivedBook = (Book)getIntent().getSerializableExtra("bookObject");
+        bookTitle.setText(receivedBook.getBookTitle());
+        bookAuthor.setText(receivedBook.getBookAuthor());
+        bookCatagories.setText(receivedBook.getBookCatagories());
+        bookPublisher.setText(receivedBook.getBookPublisher());
     }
 }
