@@ -36,7 +36,7 @@ public class BooksActivity extends AppCompatActivity {
     BookListAdapter bookListAdapter;
     String endPoint = "https://interview-api-staging.bytemark.co";
     RestAdapter restAdapter;
-    ArrayList<Book> bookListFromServer;
+    ArrayList<Book> bookListFromServer, newList;
     LibraryService libraryService;
     Button addBookButton;
     @Override
@@ -79,14 +79,13 @@ public class BooksActivity extends AppCompatActivity {
         @Override
     protected void onResume(){
         super.onResume();
-        bookListFromServer.clear();
 
         libraryService.getBooks(new Callback<Book[]>() {
             @Override
             public void success(Book[] books, Response response) {
+                bookListFromServer.clear();
                 for (int i = 0; i < books.length; i++) {
                     bookListFromServer.add(books[i]);
-
                 }
                 runOnUiThread(new Runnable() {
 

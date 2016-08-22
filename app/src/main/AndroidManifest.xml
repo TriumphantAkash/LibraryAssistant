@@ -10,6 +10,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme" >
         <activity android:name=".Activities.BooksActivity"
+            android:launchMode="singleTop"
             android:icon="@drawable/ic_launcher"
             android:label="ByteMark Library Books">
             <intent-filter>
@@ -21,10 +22,16 @@
         <activity android:name=".Activities.BookDetailsActivity"
             android:icon="@drawable/ic_launcher"
             android:label="Book Details">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="triumphantakash.github.io.librarymanager.Activities.BooksActivity" />
         </activity>
         <activity android:name=".Activities.AddBookActivity"
             android:icon="@drawable/ic_launcher"
             android:label="Add Book">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="triumphantakash.github.io.librarymanager.Activities.BooksActivity" />
         </activity>
     </application>
 

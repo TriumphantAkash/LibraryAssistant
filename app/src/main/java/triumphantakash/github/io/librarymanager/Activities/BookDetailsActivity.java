@@ -197,7 +197,7 @@ public class BookDetailsActivity extends AppCompatActivity {
     private Intent getDefaultShareIntent(){
         Intent intent = new Intent(Intent.ACTION_SEND);
         intent.setType("text/plain");
-        intent.putExtra(Intent.EXTRA_SUBJECT, "BOOK");
+        intent.putExtra(Intent.EXTRA_SUBJECT, "ByteMark Library Book: ");
         intent.putExtra(Intent.EXTRA_TEXT, receivedBook.getBookTitle() + " by " + receivedBook.getBookAuthor());
         return intent;
     }

@@ -7,6 +7,7 @@ import android.support.annotation.DrawableRes;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -38,6 +39,9 @@ public class AddBookActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_book);
+        getSupportActionBar().setHomeButtonEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         passedData = getIntent().getExtras();
 
 
@@ -50,7 +54,7 @@ public class AddBookActivity extends AppCompatActivity {
 
         if(passedData.getString("operation").equals("modify")){
             modifyBook();
-        }else{
+        } else {
             receivedBook = new Book();
         }
 
@@ -62,7 +66,7 @@ public class AddBookActivity extends AppCompatActivity {
                 receivedBook.setBookCatagories(bookCatagories.getText().toString());
                 receivedBook.setBookPublisher(bookPublisher.getText().toString());
 
-                if(isInputValid(receivedBook)){
+                if (isInputValid(receivedBook)) {
                     /*
                     ..
                     ..
@@ -70,7 +74,7 @@ public class AddBookActivity extends AppCompatActivity {
                     */
                     //call web service POST method here and feed this book object to it
                     LibraryService libraryService = restAdapter.create(LibraryService.class);
-                    if(flag.equals("add")) {
+                    if (flag.equals("add")) {
                         libraryService.addBook(receivedBook, new Callback<Object>() {
                             @Override
                             public void success(Object o, Response response) {
@@ -83,7 +87,7 @@ public class AddBookActivity extends AppCompatActivity {
                                 Log.i("HAHA", "error in adding book" + error);
                             }
                         });
-                    }else{  //flag == "modify"
+                    } else {  //flag == "modify"
                         String[] urlsParts = receivedBook.getBookURL().split("/");
                         libraryService.updateBook(urlsParts[2], receivedBook, new Callback<Object>() {
                             @Override
@@ -102,7 +106,7 @@ public class AddBookActivity extends AppCompatActivity {
                     }
 
                     //go back to the previous Activity
-                }else{
+                } else {
                     AlertDialog.Builder alert = new AlertDialog.Builder(AddBookActivity.this);
                     alert.setTitle("Incomplete Data");
                     alert.setIcon(R.drawable.warning_icon);
@@ -116,9 +120,6 @@ public class AddBookActivity extends AppCompatActivity {
                 }
             }
         });
-
-        getSupportActionBar().setHomeButtonEnabled(true);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
     }
 
@@ -143,6 +144,20 @@ public class AddBookActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
+        validate();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+        validate();//there is just one option
+        return true;
+    }
+
+    void validate(){
         Book book = new Book();
         book.setBookTitle(bookTitle.getText().toString());
         book.setBookAuthor(bookAuthor.getText().toString());
