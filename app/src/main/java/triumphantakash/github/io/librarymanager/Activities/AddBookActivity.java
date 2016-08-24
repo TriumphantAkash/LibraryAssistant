@@ -25,6 +25,9 @@ import retrofit.Callback;
 import retrofit.RestAdapter;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
+import rx.Subscriber;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 import triumphantakash.github.io.librarymanager.R;
 import triumphantakash.github.io.librarymanager.models.Book;
 import triumphantakash.github.io.librarymanager.services.LibraryService;
@@ -58,33 +61,51 @@ public class AddBookActivity extends AppCompatActivity {
             //call web service POST method here and feed this book object to it
             LibraryService libraryService = restAdapter.create(LibraryService.class);
             if (flag.equals("add")) {
-                libraryService.addBook(receivedBook, new Callback<Object>() {
-                    @Override
-                    public void success(Object o, Response response) {
-                        Log.i("HAHA", response.toString());
-                        finish();
-                    }
+                libraryService.addBook(receivedBook)
+                        .subscribeOn(Schedulers.newThread())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new Subscriber<Book>() {
+                            @Override
+                            public void onCompleted() {
 
-                    @Override
-                    public void failure(RetrofitError error) {
-                        Log.i("HAHA", "error in adding book" + error);
-                    }
-                });
+                            }
+
+                            @Override
+                            public void onError(Throwable e) {
+
+                            }
+
+                            @Override
+                            public void onNext(Book book) {
+                                //the added book object is returned here
+                                Toast.makeText(AddBookActivity.this, "Book added", Toast.LENGTH_SHORT).show();
+                                finish();
+                            }
+                        });
             } else {  //flag == "modify"
                 String[] urlsParts = receivedBook.getBookURL().split("/");
-                libraryService.updateBook(urlsParts[2], receivedBook, new Callback<Object>() {
-                    @Override
-                    public void success(Object o, Response response) {
-                        Log.i("HAHA", "success" + response.toString());
-                        Toast.makeText(AddBookActivity.this, "Book modified", Toast.LENGTH_SHORT).show();
-                        finish();
-                    }
+                libraryService.updateBook(urlsParts[2], receivedBook)
+                        .subscribeOn(Schedulers.newThread())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new Subscriber<Book>() {
+                            @Override
+                            public void onCompleted() {
 
-                    @Override
-                    public void failure(RetrofitError error) {
-                        Log.i("HAHA", "error in checkout book" + error);
-                    }
-                });
+                            }
+
+                            @Override
+                            public void onError(Throwable e) {
+
+                            }
+
+                            @Override
+                            public void onNext(Book book) {
+                                //the added book object is returned here
+                                Toast.makeText(AddBookActivity.this, "Book updated", Toast.LENGTH_SHORT).show();
+                                finish();
+                            }
+                        });
+
 
             }
 

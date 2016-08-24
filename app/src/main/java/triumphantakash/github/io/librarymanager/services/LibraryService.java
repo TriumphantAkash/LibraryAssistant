@@ -15,14 +15,14 @@ import rx.Observable;
  */
 public interface LibraryService {
     @GET("/books")      //here is the other url part.best way is to start using /
-    Observable<Book[]> getBooks();     //string user is for passing values from edittext for eg: user=basil2style,google
+    public Observable<Book[]> getBooks();     //string user is for passing values from edittext for eg: user=basil2style,google
     //response is the response from the server which is now in the POJO
 
     @GET("/books/{book_no}")
-    public void getBook(@Path("book_no") String book_no, Callback<Book>callback);
+    public Observable<Book> getBook(@Path("book_no") String book_no);
 
     @POST("/books")
-    public void addBook(@Body Object object , Callback<?> callback);
+    public Observable<Book> addBook(@Body Object object);
 
     @DELETE("/books/{book_no}")
     public void deleteBook(@Path("book_no") String book_no, Callback<?>callback);
@@ -31,5 +31,5 @@ public interface LibraryService {
     public void deleteAllBooks(Callback<?>callback);
 
     @PUT("/books/{book_no}")
-    public void updateBook(@Path("book_no") String book_no, @Body Object object, Callback<?>callback);
+    public Observable<Book> updateBook(@Path("book_no") String book_no, @Body Object object);
 }

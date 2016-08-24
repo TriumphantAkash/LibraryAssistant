@@ -26,6 +26,10 @@ import retrofit.Callback;
 import retrofit.RestAdapter;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
+import rx.Scheduler;
+import rx.Subscriber;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 import triumphantakash.github.io.librarymanager.R;
 import triumphantakash.github.io.librarymanager.models.Book;
 import triumphantakash.github.io.librarymanager.services.LibraryService;
@@ -90,18 +94,27 @@ public class BookDetailsActivity extends AppCompatActivity {
                             receivedBook.setLastCheckedOut(currentDateandTime+" "+timeZone);
                             receivedBook.setLastCheckedOutBy(enteredName);
                             String[] urlsParts = receivedBook.getBookURL().split("/");
-                            libraryService.updateBook(urlsParts[2], receivedBook, new Callback<Object>() {
-                                @Override
-                                public void success(Object o, Response response) {
-                                    Log.i("HAHA", "success"+response.toString());
-                                    feedData(receivedBook);
-                                }
+                            libraryService.updateBook(urlsParts[2], receivedBook)
+                                    .subscribeOn(Schedulers.newThread())
+                                    .observeOn(AndroidSchedulers.mainThread())
+                                    .subscribe(new Subscriber<Book>() {
+                                        @Override
+                                        public void onCompleted() {
 
-                                @Override
-                                public void failure(RetrofitError error) {
-                                    Log.i("HAHA", "error in checkout book" + error);
-                                }
-                            });
+                                        }
+
+                                        @Override
+                                        public void onError(Throwable e) {
+
+                                        }
+
+                                        @Override
+                                        public void onNext(Book book) {
+                                            //the added book object is returned here
+                                            feedData(receivedBook);
+                                            finish();
+                                        }
+                                    });
                             Toast.makeText(BookDetailsActivity.this, "Book checked out by: "+enteredName+" @ "+currentDateandTime, Toast.LENGTH_SHORT).show();
                         }
                     }
@@ -245,17 +258,24 @@ public class BookDetailsActivity extends AppCompatActivity {
 
     public void refetchData(){  //will be called from onResume
         String[] urlsParts = receivedBook.getBookURL().split("/");
-        libraryService.getBook(urlsParts[2], new Callback<Book>() {
-            @Override
-            public void success(Book book, Response response) {
-                Log.i("HAHA", response.toString());
-                feedData(book);
-            }
+        libraryService.getBook(urlsParts[2])
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Subscriber<Book>() {
+                    @Override
+                    public void onCompleted() {
 
-            @Override
-            public void failure(RetrofitError error) {
-                Log.i("HAHA", "error in deleting book" + error);
-            }
-        });
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onNext(Book book) {
+                        feedData(book);
+                    }
+                });
     }
 }
