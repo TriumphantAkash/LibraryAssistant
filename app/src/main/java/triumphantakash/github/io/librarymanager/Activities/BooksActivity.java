@@ -25,6 +25,9 @@ import retrofit.Callback;
 import retrofit.RestAdapter;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
+import rx.Subscriber;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 import triumphantakash.github.io.librarymanager.R;
 import triumphantakash.github.io.librarymanager.adapters.BookListAdapter;
 import triumphantakash.github.io.librarymanager.models.Book;
@@ -80,28 +83,36 @@ public class BooksActivity extends AppCompatActivity {
     protected void onResume(){
         super.onResume();
 
-        libraryService.getBooks(new Callback<Book[]>() {
-            @Override
-            public void success(Book[] books, Response response) {
-                bookListFromServer.clear();
-                for (int i = 0; i < books.length; i++) {
-                    bookListFromServer.add(books[i]);
-                }
-                runOnUiThread(new Runnable() {
+        libraryService.getBooks()
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Subscriber<Book[]>(){
+                    @Override
+                    public final void onCompleted() {
+                        // do nothing
+                    }
 
                     @Override
-                    public void run() {
-                        bookListAdapter.notifyDataSetChanged();
+                    public final void onError(Throwable e) {
+                        Log.e("HAHA", "error in fetching books");
+                    }
+
+                    @Override
+                    public final void onNext(Book[] books) {
+                        //mCardAdapter.addData(response);
+                        bookListFromServer.clear();
+                        for (int i = 0; i < books.length; i++) {
+                            bookListFromServer.add(books[i]);
+                        }
+                        runOnUiThread(new Runnable() {
+
+                            @Override
+                            public void run() {
+                                bookListAdapter.notifyDataSetChanged();
+                            }
+                        });
                     }
                 });
-
-            }
-
-            @Override
-            public void failure(RetrofitError error) {
-                Log.i("HAHA", error.toString());
-            }
-        });
     }
 
     public void toBookDetailsActivity(Book book){
