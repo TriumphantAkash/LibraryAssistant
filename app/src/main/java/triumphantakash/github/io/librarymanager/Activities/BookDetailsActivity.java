@@ -26,10 +26,10 @@ import retrofit.Callback;
 import retrofit.RestAdapter;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
-import rx.Scheduler;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
+import rx.Scheduler;
 import triumphantakash.github.io.librarymanager.R;
 import triumphantakash.github.io.librarymanager.models.Book;
 import triumphantakash.github.io.librarymanager.services.LibraryService;
@@ -112,10 +112,10 @@ public class BookDetailsActivity extends AppCompatActivity {
                                         public void onNext(Book book) {
                                             //the added book object is returned here
                                             feedData(receivedBook);
-                                            finish();
+                                            //finish();
                                         }
                                     });
-                            Toast.makeText(BookDetailsActivity.this, "Book checked out by: "+enteredName+" @ "+currentDateandTime, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(BookDetailsActivity.this, "Book checked out by: " + enteredName + " @ " + currentDateandTime, Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
@@ -142,19 +142,28 @@ public class BookDetailsActivity extends AppCompatActivity {
                 alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
                         String[] urlsParts = receivedBook.getBookURL().split("/");
-                        libraryService.deleteBook(urlsParts[2], new Callback<Object>() {
-                            @Override
-                            public void success(Object o, Response response) {
-                                Log.i("HAHA", response.toString());
-                            }
+                        libraryService.deleteBook(urlsParts[2])
+                                .subscribeOn(Schedulers.newThread())
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribe(new Subscriber<Book>() {
+                                    @Override
+                                    public void onCompleted() {
 
-                            @Override
-                            public void failure(RetrofitError error) {
-                                Log.i("HAHA", "error in deleting book" + error);
-                            }
-                        });
+                                    }
+
+                                    @Override
+                                    public void onError(Throwable e) {
+
+                                    }
+
+                                    @Override
+                                    public void onNext(Book book) {
+                                        //the added book object is returned here
+                                        Toast.makeText(BookDetailsActivity.this, "Book deleted", Toast.LENGTH_SHORT).show();
+                                        finish();
+                                    }
+                                });
                         finish();   //back to home Activity
-                        Toast.makeText(BookDetailsActivity.this, "Book Deleted", Toast.LENGTH_SHORT).show();
                     }
                 });
 

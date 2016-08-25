@@ -25,10 +25,10 @@ public interface LibraryService {
     public Observable<Book> addBook(@Body Object object);
 
     @DELETE("/books/{book_no}")
-    public void deleteBook(@Path("book_no") String book_no, Callback<?>callback);
+    public Observable<Book> deleteBook(@Path("book_no") String book_no);
 
     @DELETE("/clean")
-    public void deleteAllBooks(Callback<?>callback);
+    public Observable<Book> deleteAllBooks();
 
     @PUT("/books/{book_no}")
     public Observable<Book> updateBook(@Path("book_no") String book_no, @Body Object object);

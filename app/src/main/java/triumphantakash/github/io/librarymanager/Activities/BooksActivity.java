@@ -156,37 +156,52 @@ public class BooksActivity extends AppCompatActivity {
         alert.setMessage("Are you sure you want to delete all books!?");
 
         alert.setPositiveButton("DELETE ANYWAY", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int whichButton) {
-                libraryService.deleteAllBooks(new Callback<Object>() {
-                    @Override
-                    public void success(Object o, Response response) {
-                        Log.i("HAHA", response.toString());
-                        bookListFromServer.clear();
-                        runOnUiThread(new Runnable() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        libraryService.deleteAllBooks()
+                                .subscribeOn(Schedulers.newThread())
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribe(new Subscriber<Book>() {
+                                               @Override
+                                               public void onCompleted() {
 
-                            @Override
-                            public void run() {
-                                bookListAdapter.notifyDataSetChanged();
-                            }
-                        });
-                        Toast.makeText(BooksActivity.this, "All books deleted", Toast.LENGTH_SHORT).show();
+                                               }
+
+                                               @Override
+                                               public void onError(Throwable e) {
+
+                                               }
+
+                                               @Override
+                                               public void onNext(Book book) {
+                                                   bookListFromServer.clear();
+                                                   runOnUiThread(new Runnable() {
+
+                                                       @Override
+                                                       public void run() {
+                                                           bookListAdapter.notifyDataSetChanged();
+                                                       }
+                                                   });
+                                                   Toast.makeText(BooksActivity.this, "All books deleted", Toast.LENGTH_SHORT).show();
+                                               }
+                                           }
+
+                                );
+                    }
+                }
+
+        );
+
+            alert.setNegativeButton("CANCEL", new DialogInterface.OnClickListener()
+
+                    {
+                        public void onClick(DialogInterface dialog, int whichButton) {
+                            // what ever you want to do with No option.
+                            //Toast.makeText(BookDetailsActivity.this, "Checkout operation cancelled", Toast.LENGTH_SHORT).show();
+                        }
                     }
 
-                    @Override
-                    public void failure(RetrofitError error) {
-                        Log.i("HAHA", "error in deleting all books" + error);
-                    }
-                });
-            }
-        });
+            );
 
-        alert.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int whichButton) {
-                // what ever you want to do with No option.
-                //Toast.makeText(BookDetailsActivity.this, "Checkout operation cancelled", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        alert.show();
+            alert.show();
+        }
     }
-}
