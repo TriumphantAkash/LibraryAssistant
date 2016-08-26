@@ -21,6 +21,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
+import butterknife.ButterKnife;
+import butterknife.InjectView;
+import butterknife.OnClick;
 import retrofit.Callback;
 import retrofit.RestAdapter;
 import retrofit.RetrofitError;
@@ -35,26 +38,25 @@ import triumphantakash.github.io.librarymanager.services.LibraryService;
 
 public class BooksActivity extends AppCompatActivity {
 
-    ListView bookList;
+    @InjectView(R.id.bookList) ListView bookList;
+    @InjectView (R.id.buttonAddBook) Button addBookButton ;
     BookListAdapter bookListAdapter;
     String endPoint = "https://interview-api-staging.bytemark.co";
     RestAdapter restAdapter;
     ArrayList<Book> bookListFromServer, newList;
     LibraryService libraryService;
-    Button addBookButton;
+
+    @OnClick(R.id.buttonAddBook)
+    void onAddBookClick()
+    {
+        toAddBookActivity();
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_books);
-        bookList = (ListView)findViewById(R.id.bookList);
 
-        addBookButton = (Button)findViewById(R.id.buttonAddBook);
-        addBookButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                toAddBookActivity();
-            }
-        });
+        ButterKnife.inject(this);
             bookListFromServer=new ArrayList<>();
 
             bookListAdapter=new BookListAdapter(getApplicationContext(),bookListFromServer);
