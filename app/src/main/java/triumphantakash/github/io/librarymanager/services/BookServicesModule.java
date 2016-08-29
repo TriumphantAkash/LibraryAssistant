@@ -2,20 +2,33 @@ package triumphantakash.github.io.librarymanager.services;
 
 import android.widget.Toast;
 
+import javax.inject.Singleton;
+
+import dagger.Module;
+import dagger.Provides;
 import retrofit.RestAdapter;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
+import triumphantakash.github.io.librarymanager.Activities.add_book.AddBookActivity;
 import triumphantakash.github.io.librarymanager.Activities.book_list.BookListView;
 import triumphantakash.github.io.librarymanager.models.Book;
 
 /**
  * Created by Akash on 8/28/2016.
  */
-public class BookServices {
+@Module
+public class BookServicesModule {
     String endPoint = "https://interview-api-staging.bytemark.co";
     RestAdapter restAdapter = new RestAdapter.Builder().setEndpoint(endPoint).build();
-    LibraryService libraryService = restAdapter.create(LibraryService.class);
+    private LibraryService libraryService = restAdapter.create(LibraryService.class);
+
+    public BookServicesModule(){
+
+    }
+    @Provides @Singleton LibraryService provideLibraryService(){
+        return libraryService;
+    }
 
     public void postBook(Book receivedBook){
         boolean ret = false;

@@ -24,6 +24,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
+import javax.inject.Inject;
+
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
@@ -33,7 +35,10 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 import triumphantakash.github.io.librarymanager.Activities.add_book.AddBookActivity;
 import triumphantakash.github.io.librarymanager.R;
+import triumphantakash.github.io.librarymanager.dagger.DaggerMyAppComponent;
+import triumphantakash.github.io.librarymanager.dagger.MyAppComponent;
 import triumphantakash.github.io.librarymanager.models.Book;
+import triumphantakash.github.io.librarymanager.services.BookServicesModule;
 import triumphantakash.github.io.librarymanager.services.LibraryService;
 
 public class BookDetailsActivity extends MvpActivity<BookDetailsView, BookDetailsPresenter> implements BookDetailsView{
@@ -48,6 +53,8 @@ public class BookDetailsActivity extends MvpActivity<BookDetailsView, BookDetail
     @InjectView(R.id.checkoutButton) Button checkoutButton;
     @InjectView(R.id.deleteButton) Button deleteBookButton;
     @InjectView(R.id.modifyButton) Button modifyButton;
+    MyAppComponent component = DaggerMyAppComponent.builder()
+            .bookServicesModule(new BookServicesModule()).build();
 
     Book receivedBook;
     RestAdapter restAdapter;
@@ -130,6 +137,13 @@ public class BookDetailsActivity extends MvpActivity<BookDetailsView, BookDetail
         ButterKnife.inject(this);
 
         Log.i("HAHA", Calendar.getInstance().getTimeZone().getDisplayName(false, TimeZone.SHORT));
+
+
+        MyAppComponent component = DaggerMyAppComponent.builder()
+                .bookServicesModule(new BookServicesModule()).build();
+
+        component.inject(this);
+
 
         //feed data to text fields
         feedData(receivedBook);
@@ -226,7 +240,7 @@ public class BookDetailsActivity extends MvpActivity<BookDetailsView, BookDetail
         startActivity(intent);
     }
 
-    //couldn't figure out a way to return book list from async callback so fetching book list here
+    //couldn't figure out a way to return book from async callback so fetching book list here
     public void refetchData(){
         String[] urlsParts = receivedBook.getBookURL().split("/");
         libraryService.getBook(urlsParts[2])

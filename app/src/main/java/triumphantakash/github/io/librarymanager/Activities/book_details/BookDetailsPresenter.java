@@ -2,15 +2,21 @@ package triumphantakash.github.io.librarymanager.Activities.book_details;
 
 import com.hannesdorfmann.mosby.mvp.MvpBasePresenter;
 
+import triumphantakash.github.io.librarymanager.dagger.DaggerMyAppComponent;
+import triumphantakash.github.io.librarymanager.dagger.MyAppComponent;
 import triumphantakash.github.io.librarymanager.models.Book;
-import triumphantakash.github.io.librarymanager.services.BookServices;
+import triumphantakash.github.io.librarymanager.services.BookServicesModule;
 
 /**
  * Created by Akash on 8/28/2016.
  */
 public class BookDetailsPresenter extends MvpBasePresenter<BookDetailsView>{
+
+    MyAppComponent component = DaggerMyAppComponent.builder()
+            .bookServicesModule(new BookServicesModule()).build();
+
     public void checkoutBook(Book book){
-        BookServices abs = new BookServices();
+        BookServicesModule abs = new BookServicesModule();
         abs.modifyBook(book);
         if(isViewAttached()){
             getView().feedData(book);
@@ -19,7 +25,7 @@ public class BookDetailsPresenter extends MvpBasePresenter<BookDetailsView>{
     }
 
     public void deleteBook(String book_no){
-        BookServices abs = new BookServices();
+        BookServicesModule abs = new BookServicesModule();
         abs.deleteBook(book_no);
         if(isViewAttached()){
             getView().toastMsg("Book deleted");

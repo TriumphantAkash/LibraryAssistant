@@ -29,7 +29,10 @@ import triumphantakash.github.io.librarymanager.Activities.add_book.AddBookActiv
 import triumphantakash.github.io.librarymanager.Activities.book_details.BookDetailsActivity;
 import triumphantakash.github.io.librarymanager.R;
 import triumphantakash.github.io.librarymanager.adapters.BookListAdapter;
+import triumphantakash.github.io.librarymanager.dagger.DaggerMyAppComponent;
+import triumphantakash.github.io.librarymanager.dagger.MyAppComponent;
 import triumphantakash.github.io.librarymanager.models.Book;
+import triumphantakash.github.io.librarymanager.services.BookServicesModule;
 import triumphantakash.github.io.librarymanager.services.LibraryService;
 
 public class BookListActivity extends MvpActivity<BookListView, BookListPresenter> implements BookListView {
@@ -41,6 +44,9 @@ public class BookListActivity extends MvpActivity<BookListView, BookListPresente
     RestAdapter restAdapter;
     ArrayList<Book> bookListFromServer, newList;
     LibraryService libraryService;
+
+    MyAppComponent component = DaggerMyAppComponent.builder()
+            .bookServicesModule(new BookServicesModule()).build();
 
     @OnClick(R.id.buttonAddBook)
     void onAddBookClick()

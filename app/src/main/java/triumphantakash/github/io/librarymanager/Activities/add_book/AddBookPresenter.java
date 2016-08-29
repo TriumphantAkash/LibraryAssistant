@@ -1,7 +1,9 @@
 package triumphantakash.github.io.librarymanager.Activities.add_book;
 import com.hannesdorfmann.mosby.mvp.MvpBasePresenter;
 
-import triumphantakash.github.io.librarymanager.services.BookServices;
+import triumphantakash.github.io.librarymanager.dagger.DaggerMyAppComponent;
+import triumphantakash.github.io.librarymanager.dagger.MyAppComponent;
+import triumphantakash.github.io.librarymanager.services.BookServicesModule;
 import triumphantakash.github.io.librarymanager.models.Book;
 
 /**
@@ -9,13 +11,16 @@ import triumphantakash.github.io.librarymanager.models.Book;
  */
 public class AddBookPresenter extends MvpBasePresenter<AddBookView> {
 
+    MyAppComponent component = DaggerMyAppComponent.builder()
+            .bookServicesModule(new BookServicesModule()).build();
+
     //presenter will first validate this data and then if it's valid
     //pass it to business logic classs and based on the results call corresponding View method to
     //show anything on the UI
     public void addBook(Book book){
         if(isInputValid(book)){
             //call the businesslogic thing
-            BookServices abs = new BookServices();
+            BookServicesModule abs = new BookServicesModule();
             abs.postBook(book);
             if (isViewAttached())
                 getView().showBookAddSuccess("Book Added successfully");
@@ -30,7 +35,7 @@ public class AddBookPresenter extends MvpBasePresenter<AddBookView> {
     public void modifyBook(Book book){
         if(isInputValid(book)){
             //call the businesslogic thing
-            BookServices abs = new BookServices();
+            BookServicesModule abs = new BookServicesModule();
             abs.modifyBook(book);
             if (isViewAttached())
                 getView().showBookAddSuccess("Book Modified successfully");
