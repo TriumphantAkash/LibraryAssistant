@@ -1,11 +1,9 @@
-package triumphantakash.github.io.librarymanager.Activities;
+package triumphantakash.github.io.librarymanager.Activities.book_list;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Color;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
+import android.support.annotation.NonNull;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -13,30 +11,28 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import java.text.SimpleDateFormat;
+import com.hannesdorfmann.mosby.mvp.MvpActivity;
+
 import java.util.ArrayList;
-import java.util.Date;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
-import retrofit.Callback;
 import retrofit.RestAdapter;
-import retrofit.RetrofitError;
-import retrofit.client.Response;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
+import triumphantakash.github.io.librarymanager.Activities.add_book.AddBookActivity;
+import triumphantakash.github.io.librarymanager.Activities.book_details.BookDetailsActivity;
 import triumphantakash.github.io.librarymanager.R;
 import triumphantakash.github.io.librarymanager.adapters.BookListAdapter;
 import triumphantakash.github.io.librarymanager.models.Book;
 import triumphantakash.github.io.librarymanager.services.LibraryService;
 
-public class BooksActivity extends AppCompatActivity {
+public class BookListActivity extends MvpActivity<BookListView, BookListPresenter> implements BookListView {
 
     @InjectView(R.id.bookList) ListView bookList;
     @InjectView (R.id.buttonAddBook) Button addBookButton ;
@@ -66,16 +62,14 @@ public class BooksActivity extends AppCompatActivity {
 
             libraryService=restAdapter.create(LibraryService.class);
 
-            bookList.setOnItemClickListener(new AdapterView.OnItemClickListener()
+            bookList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
-            {
-
-                @Override
-                public void onItemClick (AdapterView < ? > parent, View view,int position, long id){
-                Book temp = (Book) parent.getAdapter().getItem(position);
-                toBookDetailsActivity(temp);
-            }
-            }
+                                                @Override
+                                                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                                                    Book temp = (Book) parent.getAdapter().getItem(position);
+                                                    toBookDetailsActivity(temp);
+                                                }
+                                            }
 
             );
 
@@ -84,37 +78,13 @@ public class BooksActivity extends AppCompatActivity {
         @Override
     protected void onResume(){
         super.onResume();
+            fetchBooks();
+    }
 
-        libraryService.getBooks()
-                .subscribeOn(Schedulers.newThread())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Subscriber<Book[]>(){
-                    @Override
-                    public final void onCompleted() {
-                        // do nothing
-                    }
-
-                    @Override
-                    public final void onError(Throwable e) {
-                        Log.e("HAHA", "error in fetching books");
-                    }
-
-                    @Override
-                    public final void onNext(Book[] books) {
-                        //mCardAdapter.addData(response);
-                        bookListFromServer.clear();
-                        for (int i = 0; i < books.length; i++) {
-                            bookListFromServer.add(books[i]);
-                        }
-                        runOnUiThread(new Runnable() {
-
-                            @Override
-                            public void run() {
-                                bookListAdapter.notifyDataSetChanged();
-                            }
-                        });
-                    }
-                });
+    @NonNull
+    @Override
+    public BookListPresenter createPresenter() {
+        return new BookListPresenter();
     }
 
     public void toBookDetailsActivity(Book book){
@@ -152,48 +122,19 @@ public class BooksActivity extends AppCompatActivity {
     }
 
     public void deleteAllBooks(){
-        AlertDialog.Builder alert = new AlertDialog.Builder(BooksActivity.this);
+        AlertDialog.Builder alert = new AlertDialog.Builder(BookListActivity.this);
         alert.setIcon(R.drawable.warning2_icon);
         alert.setTitle("Deleting All Books");
         alert.setMessage("Are you sure you want to delete all books!?");
 
         alert.setPositiveButton("DELETE ANYWAY", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
-                        libraryService.deleteAllBooks()
-                                .subscribeOn(Schedulers.newThread())
-                                .observeOn(AndroidSchedulers.mainThread())
-                                .subscribe(new Subscriber<Book>() {
-                                               @Override
-                                               public void onCompleted() {
-
-                                               }
-
-                                               @Override
-                                               public void onError(Throwable e) {
-
-                                               }
-
-                                               @Override
-                                               public void onNext(Book book) {
-                                                   bookListFromServer.clear();
-                                                   runOnUiThread(new Runnable() {
-
-                                                       @Override
-                                                       public void run() {
-                                                           bookListAdapter.notifyDataSetChanged();
-                                                       }
-                                                   });
-                                                   Toast.makeText(BooksActivity.this, "All books deleted", Toast.LENGTH_SHORT).show();
-                                               }
-                                           }
-
-                                );
+                        presenter.deleteAllBooks();
                     }
                 }
 
         );
-
-            alert.setNegativeButton("CANCEL", new DialogInterface.OnClickListener()
+        alert.setNegativeButton("CANCEL", new DialogInterface.OnClickListener()
 
                     {
                         public void onClick(DialogInterface dialog, int whichButton) {
@@ -206,4 +147,46 @@ public class BooksActivity extends AppCompatActivity {
 
             alert.show();
         }
+
+    @Override
+    public void showAllBooksDeleted(String message) {
+        Toast.makeText(BookListActivity.this, message, Toast.LENGTH_SHORT).show();
     }
+
+    //couldn't figure out a way to return book list from async callback so fetching book list here
+    @Override
+    public void fetchBooks(){
+        libraryService.getBooks()
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Subscriber<Book[]>(){
+                    @Override
+                    public final void onCompleted() {
+                        // do nothing
+                        runOnUiThread(new Runnable() {
+
+                            @Override
+                            public void run() {
+                                bookListAdapter.notifyDataSetChanged();
+                            }
+                        });
+                    }
+
+                    @Override
+                    public final void onError(Throwable e) {
+                        Log.e("HAHA", "error in fetching books");
+                    }
+
+                    @Override
+                    public final void onNext(Book[] books) {
+                        //mCardAdapter.addData(response);
+                        bookListFromServer.clear();
+                        for (int i = 0; i < books.length; i++) {
+                            bookListFromServer.add(books[i]);
+                        }
+
+                    }
+                });
+    }
+
+}

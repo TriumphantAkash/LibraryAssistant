@@ -1,4 +1,4 @@
-package triumphantakash.github.io.librarymanager.Activities;
+package triumphantakash.github.io.librarymanager.Activities.add_book;
 
 import com.hannesdorfmann.mosby.mvp.MvpView;
 

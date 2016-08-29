@@ -1,9 +1,10 @@
-package triumphantakash.github.io.librarymanager.Activities;
+package triumphantakash.github.io.librarymanager.Activities.book_details;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
+import android.support.annotation.NonNull;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.ShareActionProvider;
@@ -11,11 +12,12 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.hannesdorfmann.mosby.mvp.MvpActivity;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -25,19 +27,16 @@ import java.util.TimeZone;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
-import retrofit.Callback;
 import retrofit.RestAdapter;
-import retrofit.RetrofitError;
-import retrofit.client.Response;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
-import rx.Scheduler;
+import triumphantakash.github.io.librarymanager.Activities.add_book.AddBookActivity;
 import triumphantakash.github.io.librarymanager.R;
 import triumphantakash.github.io.librarymanager.models.Book;
 import triumphantakash.github.io.librarymanager.services.LibraryService;
 
-public class BookDetailsActivity extends AppCompatActivity {
+public class BookDetailsActivity extends MvpActivity<BookDetailsView, BookDetailsPresenter> implements BookDetailsView{
 
     private ShareActionProvider mShareActionProvider;
     @InjectView(R.id.authorName)TextView authorName;
@@ -77,31 +76,9 @@ public class BookDetailsActivity extends AppCompatActivity {
                     //call correesponding web service for checkout
                     String currentDateandTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
                     String timeZone = Calendar.getInstance().getTimeZone().getDisplayName(false, TimeZone.SHORT);
-                    receivedBook.setLastCheckedOut(currentDateandTime+" "+timeZone);
+                    receivedBook.setLastCheckedOut(currentDateandTime + " " + timeZone);
                     receivedBook.setLastCheckedOutBy(enteredName);
-                    String[] urlsParts = receivedBook.getBookURL().split("/");
-                    libraryService.updateBook(urlsParts[2], receivedBook)
-                            .subscribeOn(Schedulers.newThread())
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .subscribe(new Subscriber<Book>() {
-                                @Override
-                                public void onCompleted() {
-
-                                }
-
-                                @Override
-                                public void onError(Throwable e) {
-
-                                }
-
-                                @Override
-                                public void onNext(Book book) {
-                                    //the added book object is returned here
-                                    feedData(receivedBook);
-                                    //finish();
-                                }
-                            });
-                    Toast.makeText(BookDetailsActivity.this, "Book checked out by: " + enteredName + " @ " + currentDateandTime, Toast.LENGTH_SHORT).show();
+                    presenter.checkoutBook(receivedBook);
                 }
             }
         });
@@ -125,27 +102,7 @@ public class BookDetailsActivity extends AppCompatActivity {
         alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
                 String[] urlsParts = receivedBook.getBookURL().split("/");
-                libraryService.deleteBook(urlsParts[2])
-                        .subscribeOn(Schedulers.newThread())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new Subscriber<Book>() {
-                            @Override
-                            public void onCompleted() {
-
-                            }
-
-                            @Override
-                            public void onError(Throwable e) {
-
-                            }
-
-                            @Override
-                            public void onNext(Book book) {
-                                //the added book object is returned here
-                                Toast.makeText(BookDetailsActivity.this, "Book deleted", Toast.LENGTH_SHORT).show();
-                                finish();
-                            }
-                        });
+                presenter.deleteBook(urlsParts[2]);
                 finish();   //back to home Activity
             }
         });
@@ -191,6 +148,12 @@ public class BookDetailsActivity extends AppCompatActivity {
         refetchData();
     }
 
+    @NonNull
+    @Override
+    public BookDetailsPresenter createPresenter() {
+        return new BookDetailsPresenter();
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
 
@@ -215,6 +178,11 @@ public class BookDetailsActivity extends AppCompatActivity {
         intent.putExtra(Intent.EXTRA_SUBJECT, "ByteMark Library Book: ");
         intent.putExtra(Intent.EXTRA_TEXT, receivedBook.getBookTitle() + " by " + receivedBook.getBookAuthor());
         return intent;
+    }
+
+    @Override
+    public void toastMsg(String str) {
+        Toast.makeText(BookDetailsActivity.this, str, Toast.LENGTH_SHORT).show();
     }
 
     public void feedData(Book book){
@@ -258,7 +226,8 @@ public class BookDetailsActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    public void refetchData(){  //will be called from onResume
+    //couldn't figure out a way to return book list from async callback so fetching book list here
+    public void refetchData(){
         String[] urlsParts = receivedBook.getBookURL().split("/");
         libraryService.getBook(urlsParts[2])
                 .subscribeOn(Schedulers.newThread())
