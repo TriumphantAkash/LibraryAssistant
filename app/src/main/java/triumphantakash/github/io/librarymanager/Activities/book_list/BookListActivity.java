@@ -3,6 +3,7 @@ package triumphantakash.github.io.librarymanager.Activities.book_list;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.os.Bundle;
 import android.util.Log;
@@ -84,7 +85,11 @@ public class BookListActivity extends MvpActivity<BookListView, BookListPresente
         @Override
     protected void onResume(){
         super.onResume();
-            fetchBooks();
+            new Handler().postDelayed(new Runnable() {
+                public void run() {
+                    fetchBooks();
+                }
+            }, 200);
     }
 
     @NonNull
