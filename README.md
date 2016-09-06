@@ -1,7 +1,8 @@
 # README #
 
-### Bytemark is looking for a way to track who has which book from our library. The goal of this exercise is to create a simple app that connects to a web server and performs a GET , a POST , and a PUT. ###
+### A perfect Android application for assisting you managing your library operations. It's a simple app that connects to a your web server and performs GET, POST, PUT, DELETE operations consuming the provided web services ###
 
+* The app uses latest Android framworks and libraries (Mosby MVP, Dagger2, Butterknife, Retrofit with RxJava)
 * LibraryManager for managing ByteMark library books
 * 1.0
 * https://triumphantAkash.github.io
